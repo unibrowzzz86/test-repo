@@ -87,7 +87,8 @@ def run_simulation(engine: StreamingEngine, duration_minutes: int = 5):
     engine._running = True
 
     start = time.time()
-    base_ts = time.time()
+    # Use simulated timestamps spaced 0.25s apart (4 ticks/sec)
+    sim_start = time.time()
 
     for i in range(total_ticks):
         if not engine._running:
@@ -102,7 +103,9 @@ def run_simulation(engine: StreamingEngine, duration_minutes: int = 5):
         side = 1 if ret > 0 else -1
         size = rng.randint(1, 10)
 
-        engine.inject_tick(price=price, size=size, side=side)
+        # Use properly spaced simulated timestamps so bars complete
+        sim_ts = sim_start + i * tick_interval
+        engine.inject_tick(price=price, size=size, side=side, timestamp=sim_ts)
 
         # Print status every 1000 ticks
         if (i + 1) % 1000 == 0:
