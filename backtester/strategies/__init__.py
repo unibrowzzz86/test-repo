@@ -4,6 +4,7 @@ from backtester.strategies.mean_reversion import MeanReversion
 from backtester.strategies.momentum_breakout import MomentumBreakout
 from backtester.strategies.vwap_strategy import VWAPStrategy
 from backtester.strategies.ensemble import EnsembleStrategy
+from backtester.strategies.es_scalper import ESScalper
 
 __all__ = [
     "Strategy",
@@ -12,4 +13,5 @@ __all__ = [
     "MomentumBreakout",
     "VWAPStrategy",
     "EnsembleStrategy",
+    "ESScalper",
 ]
