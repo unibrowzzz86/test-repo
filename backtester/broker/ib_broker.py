@@ -59,15 +59,33 @@ class IBBroker(Broker):
 
     def connect(self) -> bool:
         try:
-            from ib_insync import IB
-            self.ib = IB()
-            self.ib.connect(self.host, self.port, clientId=self.client_id)
-            logger.info(f"Connected to IB at {self.host}:{self.port}")
-            return True
+            from ib_insync import IB, util
         except ImportError:
             raise ImportError(
                 "ib_insync is required for IB trading. Install with: pip install ib_insync"
             )
+
+        try:
+            # Fix for Windows: ensure an asyncio event loop exists
+            import asyncio
+            try:
+                asyncio.get_event_loop()
+            except RuntimeError:
+                asyncio.set_event_loop(asyncio.new_event_loop())
+
+            # ib_insync helper that patches the event loop for sync usage
+            util.startLoop()
+
+            self.ib = IB()
+            self.ib.connect(self.host, self.port, clientId=self.client_id)
+            logger.info(f"Connected to IB at {self.host}:{self.port}")
+            return True
+        except ConnectionRefusedError:
+            logger.error(
+                f"Connection refused at {self.host}:{self.port}. "
+                f"Make sure IB TWS or Gateway is running with API enabled."
+            )
+            return False
         except Exception as e:
             logger.error(f"Failed to connect to IB: {e}")
             return False
